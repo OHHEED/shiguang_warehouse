@@ -284,20 +284,13 @@
             await window.shiguangBridgePromise.savePresetTimeSlots(JSON.stringify(NJIT_PRESET_TIME_SLOTS));
         } catch (e) { /* 作息保存失败不影响课程导入 */ }
 
-        var maxWeek = 1;
-        payload.forEach(function (c) {
-            c.weeks.forEach(function (w) { if (w > maxWeek) maxWeek = w; });
-        });
-
-        try {
-            await window.shiguangBridgePromise.saveCourseConfig(JSON.stringify({
-                semesterTotalWeeks: maxWeek
-            }));
-        } catch (e) { /* 配置保存失败不影响课程导入 */ }
+        // 注意：不调用 saveCourseConfig —— App 端 importCourseConfig 是全字段覆盖写入，
+        // 会把你已设置的开学日期/上课时长覆盖为空，导致每次导入都要重新设置。
+        // 开学日期与学期周数请在课表设置里设置一次，导入流程不会覆盖它们。
 
         await window.shiguangBridgePromise.showAlert(
             "导入完成",
-            "成功导入 " + payload.length + " 条课程（原始记录 " + rows.length + " 条，来源 " + result.source + "），作息时段已同步写入。\n\n如有课程时间/周次显示异常，请把课程名反馈给维护者。",
+            "成功导入 " + payload.length + " 条课程（原始记录 " + rows.length + " 条，来源 " + result.source + "），作息时段已同步写入。\n\n开学日期和学期周数请到课表设置中设置一次（导入不会覆盖）。如有课程时间/周次显示异常，请把课程名反馈给维护者。",
             "好的"
         );
         shiguangBridge.notifyTaskCompletion();
